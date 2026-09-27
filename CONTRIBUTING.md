@@ -61,6 +61,13 @@ in `scripts/make_figures.py` or `config/figures.toml`, then run
    editions. Leave out documentation-only changes.
 3. Document new APIs and parameters, and regenerate figures if their output
    changed.
+4. Once `main` builds cleanly, tag the release. The tag must match `version`
+   in `config/meta.toml`; GitHub Actions then publishes the three PDFs:
+
+   ```bash
+   git tag vX.Y.Z
+   git push origin vX.Y.Z
+   ```
 
 ## License
 

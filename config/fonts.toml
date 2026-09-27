@@ -9,25 +9,28 @@
 # in (latin, cjk) order: Latin letters come from the Latin font, everything it lacks falls through to the CJK font.
 
 [latin]
-serif = ["TeX Gyre Pagella", "TeXGyrePagellaX"]
-sans = ["TeX Gyre Heros", "TeXGyrePagellaX"]
+serif = ["TeX Gyre Pagella"]
+sans = ["TeX Gyre Heros"]
 mono = ["CMU Typewriter Text"]
 # ctxdoc: \setmonofont{cmun}[UprightFont=*btl, ItalicFont=*bto], i.e. the
 # Light cut (weight 200) of CMU Typewriter Text.
 mono-weight = 200
-math = ["TeX Gyre Pagella Math", "New Computer Modern Math"]
-heading = ["TeX Gyre Pagella", "TeXGyrePagellaX"]
+math = ["TeX Gyre Pagella Math"]
+heading = ["TeX Gyre Pagella"]
 heading-weight = "bold"
 
 # Traditional Chinese: Noto Serif TC (Source Han Serif's sibling family, same
 # design, genuine Taiwan glyph forms) with Kaiti TC for emph. strong has
 # no separate family; Noto Serif TC ships a real Bold cut under the same
 # family name, so Typst picks it up directly (no Hei mixed in).
+# Kaiti is Apple-licensed and not in the repository; where the Makefile finds
+# no copy (e.g. in CI), emphasis uses emph-fallback, the free AR PL UKai.
 [zh-TW]
 serif = ["Noto Serif TC"]
 emph = ["Kaiti TC"]        # CJK has no italics; emphasis uses Kai
+emph-fallback = ["AR PL UKai TW"]
 mono = ["Noto Serif TC"]   # Chinese comments in code use Song; Latin stays CMU Typewriter
-heading-latin = ["TeX Gyre Pagella", "TeXGyrePagellaX"]
+heading-latin = ["TeX Gyre Pagella"]
 heading = ["Noto Serif TC"]
 heading-weight = "bold"
 
@@ -39,6 +42,7 @@ heading-weight = "bold"
 serif = ["Noto Serif SC"]
 mono = ["Noto Serif SC"] # Chinese comments in code use Song
 emph = ["Kaiti SC"]
-heading-latin = ["TeX Gyre Pagella", "TeXGyrePagellaX"]
+emph-fallback = ["AR PL UKai"]
+heading-latin = ["TeX Gyre Pagella"]
 heading = ["Noto Serif SC"]
 heading-weight = "bold"
