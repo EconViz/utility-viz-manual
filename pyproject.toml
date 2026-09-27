@@ -1,0 +1,7 @@
+[project]
+name = "utility-viz-manual"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = [
+    "econ-viz>=1.12.0",
+]

@@ -1,0 +1,15 @@
+# Document metadata shared by every language edition.
+
+[package]
+name = "econ-viz"
+version = "1.12.0"
+date = "2026-09-26"
+python = "3.10"
+repo = "https://github.com/EconViz/econ-viz"
+site = "https://econ-viz.org"
+pypi = "https://pypi.org/project/econ-viz/"
+email = "contact@econ-viz.org"
+license = "MIT License"
+
+[author]
+name = "Anthony Sung"
