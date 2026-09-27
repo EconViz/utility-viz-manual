@@ -4,7 +4,6 @@
 
 <p align="center">
   <a href="https://github.com/EconViz/utility-viz-manual/actions/workflows/build.yml"><img alt="Build" src="https://img.shields.io/github/actions/workflow/status/EconViz/utility-viz-manual/build.yml?branch=main&style=flat-square&color=181818&labelColor=f3f3f3&label=build"></a>
-  <a href="https://github.com/EconViz/utility-viz-manual/releases/latest"><img alt="Release" src="https://img.shields.io/github/v/release/EconViz/utility-viz-manual?style=flat-square&color=181818&labelColor=f3f3f3&label=release"></a>
   <a href="https://pypi.org/project/econ-viz/"><img alt="econ-viz" src="https://img.shields.io/badge/econ--viz-v1.12.0-181818?style=flat-square&color=181818&labelColor=f3f3f3"></a>
   <a href="https://typst.app/"><img alt="Typst" src="https://img.shields.io/badge/Typst-0.15-181818?style=flat-square&color=181818&labelColor=f3f3f3"></a>
   <img alt="Editions" src="https://img.shields.io/badge/editions-en%20%7C%20zh--TW%20%7C%20zh--CN-181818?style=flat-square&color=181818&labelColor=f3f3f3">
@@ -25,8 +24,11 @@ The manual comes in three editions built from the same sources:
 | 繁體中文 | `build/econ-viz-zh-TW.pdf` |
 | 简体中文 | `build/econ-viz-zh-CN.pdf` |
 
-Download the PDFs from the [latest release](https://github.com/EconViz/utility-viz-manual/releases/latest).
-For the online documentation, see [econ-viz.org](https://econ-viz.org).
+The PDFs can be downloaded from [econ-viz.org](https://econ-viz.org/project/manual/):
+
+- [English](https://econ-viz.org/assets/manual/econ-viz-manual-en.pdf)
+- [繁體中文](https://econ-viz.org/assets/manual/econ-viz-manual-zh-TW.pdf)
+- [简体中文](https://econ-viz.org/assets/manual/econ-viz-manual-zh-CN.pdf)
 
 ## Requirements
 
@@ -47,19 +49,34 @@ make zh-CN      # Simplified Chinese
 make all        # every edition
 make watch EDITION=zh-TW
 make figures    # regenerate figures/ with econ-viz
+make publish    # build every edition and copy it into econ-viz-docs
 make clean
 ```
 
 The Makefile finds the TeX fonts through `kpsewhich`. If TeX Live is not on
-your `PATH`, pass `TEXMFDIST=/path/to/texmf-dist`, or list font directories
-directly with `FONT_DIRS="dir1 dir2"`.
+your `PATH`, pass `TEXMFDIST=/path/to/texmf-dist`.
+
+## Publishing
+
+The PDFs on econ-viz.org are served from
+[econ-viz-docs](https://github.com/EconViz/econ-viz-docs). With both
+repositories side by side, run
+
+```bash
+make publish                   # or: make publish DOCS=/path/to/econ-viz-docs
+```
+
+to build every edition and copy it to `docs/assets/manual/` there, then commit
+and push econ-viz-docs. The file names do not change between versions, so
+links to them stay valid. `make publish` stops if Kaiti is missing, so the
+published PDFs always use the same fonts as a local build.
 
 ## Continuous integration
 
 [`.github/workflows/build.yml`](.github/workflows/build.yml) builds all three
-editions on every push and pull request, fails on any Typst warning, and keeps
-the PDFs as a workflow artifact. Pushing a tag `vX.Y.Z` that matches
-`version` in `config/meta.toml` also publishes the PDFs as a GitHub release.
+editions on every push and pull request, with the same TeX Live fonts as a
+local TinyTeX build, and fails on any Typst warning other than the missing
+Kaiti. It only checks the sources; it publishes nothing.
 
 ## Fonts
 
@@ -69,8 +86,7 @@ Noto Serif TC and Noto Serif SC ship in `fonts/` under the
 Kaiti, used for emphasis in the Chinese editions, is licensed by Apple and is
 not in this repository. On macOS, download **Kaiti SC** in Font Book; the
 Makefile then finds it automatically. Otherwise, copy `Kaiti.ttc` into
-`fonts/`. Without Kaiti, emphasis falls back to the free AR PL UKai, as in the
-release PDFs built by GitHub Actions.
+`fonts/`.
 
 ## Layout
 

@@ -1,9 +1,11 @@
 name: Build manual
 
+# Checks that every edition compiles. The published PDFs are built locally
+# with `make publish`, because Kaiti is not available here.
+
 on:
   push:
     branches: [main]
-    tags: ["v*"]
   pull_request:
   workflow_dispatch:
 
@@ -17,16 +19,14 @@ jobs:
   build:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      # TeX Gyre and CMU replace the TeX Live copies used locally; Kaiti is
-      # Apple-licensed and not in the repository, so the Chinese editions
-      # set emphasis in AR PL UKai (see config/fonts.toml).
-      - name: Install fonts
+      # The same TeX Live font packages a local TinyTeX build uses.
+      - name: Install TinyTeX fonts
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq --no-install-recommends \
-            fonts-texgyre fonts-texgyre-math fonts-cmu fonts-arphic-ukai
+          curl -fsSL https://yihui.org/tinytex/install-bin-unix.sh | sh
+          echo "$(ls -d "$HOME"/.TinyTeX/bin/*)" >> "$GITHUB_PATH"
+          "$HOME"/.TinyTeX/bin/*/tlmgr install tex-gyre tex-gyre-math cm-unicode newpx newcomputermodern
 
       - name: Install Typst
         run: |
@@ -34,52 +34,19 @@ jobs:
             | sudo tar -xJ -C /usr/local/bin --strip-components=1
           typst --version
 
+      # Kaiti is missing by design; any other warning fails the build.
       - name: Build PDFs
         shell: bash
         run: |
-          make all FONT_DIRS="/usr/share/fonts /usr/share/texmf/fonts" 2>&1 | tee build.log
-          if grep -q "^warning:" build.log; then
+          make all 2>&1 | tee build.log
+          if grep "^warning:" build.log | grep -vE "unknown font family: kaiti (tc|sc)$"; then
             echo "::error::Typst reported warnings"
             exit 1
           fi
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: manual-pdfs
           path: build/*.pdf
           if-no-files-found: error
-
-  release:
-    if: startsWith(github.ref, 'refs/tags/v')
-    needs: build
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: manual-pdfs
-          path: build
-
-      - name: Check tag against config/meta.toml
-        run: |
-          version=$(sed -n 's/^version = "\(.*\)"/\1/p' config/meta.toml | head -1)
-          if [ "v${version}" != "${GITHUB_REF_NAME}" ]; then
-            echo "::error::Tag ${GITHUB_REF_NAME} does not match version ${version} in config/meta.toml"
-            exit 1
-          fi
-
-      - name: Publish release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          version="${GITHUB_REF_NAME#v}"
-          mkdir dist
-          for e in en zh-TW zh-CN; do
-            cp "build/econ-viz-${e}.pdf" "dist/econ-viz-manual-${version}-${e}.pdf"
-          done
-          gh release create "${GITHUB_REF_NAME}" dist/*.pdf \
-            --title "econ-viz manual ${GITHUB_REF_NAME}" \
-            --notes "The econ-viz ${GITHUB_REF_NAME} manual in English, Traditional Chinese (zh-TW) and Simplified Chinese (zh-CN)."
+          retention-days: 7

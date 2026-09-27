@@ -33,10 +33,6 @@
 #let is-cjk(key) = strings-for(key).script == "cjk"
 #let par-for(key) = if is-cjk(key) { layout-cfg.par.cjk } else { layout-cfg.par.latin }
 
-// Kaiti is not in the repository. The Makefile passes `--input kai=fallback`
-// when it finds no copy, and emphasis then uses the free `emph-fallback` face.
-#let kai-fallback = sys.inputs.at("kai", default: "kaiti") == "fallback"
-
 // (latin, cjk) stacks: Latin letters come from the Latin
 // font, CJK characters fall through to the CJK font.
 #let font-stack(key, kind) = {
@@ -44,7 +40,6 @@
   if not is-cjk(key) { return latin }
   let cjk = fonts-cfg.at(key)
   let latin-part = if kind == "heading" { cjk.at("heading-latin", default: latin) } else { latin }
-  let kind = if kind == "emph" and kai-fallback { "emph-fallback" } else { kind }
   latin-part + cjk.at(kind, default: cjk.serif)
 }
 
