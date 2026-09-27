@@ -521,12 +521,13 @@
   let cjk = is-cjk(edition)
   let serif = font-stack(edition, "serif")
   let mono = font-stack(edition, "mono")
-  let author = doc-meta.author.name
+  let authors = doc-meta.authors
+  let author-name(a) = a.name.at(edition, default: a.name.en)
 
   // Update the state before anything that reads it.
   edition-state.update(edition)
 
-  set document(title: s.title, author: author)
+  set document(title: s.title, author: authors.map(author-name))
 
   set page(
     paper: layout-cfg.page.paper,
@@ -738,22 +739,78 @@
   // Footnotes get their own, tighter leading: about 70% of the body's, and
   // the same gap between entries so each note reads as one small block.
   let fn-leading = p.leading * 0.7em
-  set footnote.entry(separator: line(length: 30%, stroke: 0.4pt), gap: fn-leading)
+  // The title page is centred on the page (see \maketitle below), so its
+  // footnote area, rule included, extends left through the margin column
+  // by the same amount.
+  let title-extra = (layout-cfg.page.left - layout-cfg.page.right) * 1in
+  set footnote.entry(
+    separator: context {
+      let rule = line(length: 30%, stroke: 0.4pt)
+      if here().page() == 1 { move(dx: -title-extra, rule) } else { rule }
+    },
+    gap: fn-leading,
+  )
   show footnote.entry: set par(leading: fn-leading)
+  // Title-page author notes (*, †): unjustified, and as wide as the title.
+  show footnote.entry: it => {
+    if it.note.numbering == "*" {
+      set par(justify: false)
+      pad(left: -title-extra, it)
+    } else { it }
+  }
   set list(indent: 0.4em, body-indent: 0.5em, marker: [•])
   set enum(indent: 0.4em)
 
-  // Title (\maketitle).
+  // Title (\maketitle), centred on the page rather than the text block:
+  // extend left through the margin column until both sides keep the
+  // page's right margin.
   v(1.2em)
-  align(center, {
+  pad(left: -title-extra, align(center, {
     set par(justify: false, first-line-indent: 0pt)
     let title-face = font-stack(edition, "heading")
-    block(text(size: 17.28pt, font: title-face, weight: heading-weight(edition), {
+    // Keep the title at the text block's width so it breaks as before.
+    block(width: 100% - title-extra, text(size: 17.28pt, font: title-face, weight: heading-weight(edition), {
       show doc-meta.package.name: pkg
       s.title
     }))
     v(1.1em)
-    text(size: 12pt, author)
+    // Authors with \thanks-style notes, as in journals: one note per
+    // affiliation, marked on every author who shares it, then a note for
+    // each author with an email, flagged when corresponding (*, †, ‡, ...).
+    // Numbered apart from the body footnotes.
+    {
+      set footnote(numbering: "*")
+      let aff-of(a) = {
+        let aff = a.at("affiliation", default: none)
+        if aff == none { none } else { aff.at(edition, default: aff.en) }
+      }
+      let affs = authors.map(aff-of).filter(x => x != none).dedup()
+      let (email-before, email-after) = s.email.split("{}")
+      text(size: 12pt, authors.map(a => {
+        let aff = aff-of(a)
+        let aff-mark = if aff != none {
+          let i = affs.position(x => x == aff)
+          let key = label("author-aff-" + str(i))
+          // The first author with this affiliation carries the note; the
+          // others point to it.
+          if authors.find(b => aff-of(b) == aff) == a {
+            let end = if is-cjk(edition) [。] else [.]
+            [#footnote(aff + end)#key]
+          } else { footnote(key) }
+        }
+        let email = a.at("email", default: none)
+        let email-mark = if email != none {
+          footnote({
+            if a.at("corresponding", default: false) { s.corresponding }
+            email-before
+            link("mailto:" + email, email)
+            email-after
+          })
+        }
+        box(author-name(a)) + aff-mark + email-mark
+      }).join(h(2em)))
+    }
+    counter(footnote).update(0)
     v(0.6em)
     // Date · version · repository · website, the last two as clickable
     // icons in place of a \thanks footnote.
@@ -767,7 +824,7 @@
       [ · ]
       icon("/template/icons/globe.svg", doc-meta.package.site)
     })
-  })
+  }))
   v(1.6em)
 
   // Two-column table of contents (multitoc), same geometry in every edition.

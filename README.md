@@ -109,6 +109,15 @@ Makefile then finds it automatically. Otherwise, copy `Kaiti.ttc` into
 See [CONTRIBUTING.md](CONTRIBUTING.md). Report security issues as described in
 [SECURITY.md](SECURITY.md).
 
+## Authors
+
+- Pin Yue Sung (corresponding author), Department of International Business,
+  National Chengchi University
+- Ling Tak Douglas Chung, Department of International Business, National
+  Chengchi University
+
+Questions about the manual: <contact@econ-viz.org>.
+
 ## License
 
-MIT © Anthony Sung. The bundled Noto fonts are under the SIL Open Font License 1.1.
+MIT © Pin Yue Sung. The bundled Noto fonts are under the SIL Open Font License 1.1.
