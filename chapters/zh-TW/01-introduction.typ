@@ -21,8 +21,6 @@
 
 圖形預設顯示第一象限，座標軸以箭頭表示並隱藏數字刻度，標籤支援 TeX 數學語法。輸出格式包括 PNG、PDF、SVG、TikZ 與 GIF。
 
-本手冊內容以 v#doc-meta.package.version 為準；安裝方式詳見#ref(<sec-install>)，第一個繪圖範例詳見#ref(<sec-quickstart>)。
-
 == 功能範圍
 
 #pkg("econ-viz") 的功能分為效用模型、均衡求解、效用水準、圖層與匯出格式五個部分。模型與求解結果可分開使用；同一模型也可交由畫布、多面板圖、需求圖或分析 API 處理。

@@ -24,9 +24,6 @@ draws in the conventions of textbook figures---first-quadrant axes with
 arrow tips, #LaTeX;-style labels and no numeric ticks---and exports to PNG,
 PDF, SVG, TikZ or animated GIF.
 
-This manual describes v#doc-meta.package.version\; installation is covered in
-@sec-install and a first example in @sec-quickstart.
-
 == Scope
 
 #pkg("econ-viz") is organised in five parts: utility models, equilibrium solving, utility levels, drawing layers, and output formats. Models and solutions remain usable on their own, and the same model can be passed to a canvas, multi-panel figure, demand diagram, or analysis API.
