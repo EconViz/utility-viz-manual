@@ -743,11 +743,16 @@
   // footnote area, rule included, extends left through the margin column
   // by the same amount.
   let title-extra = (layout-cfg.page.left - layout-cfg.page.right) * 1in
+  // The rule sits at the text block's left edge on every page. (Choosing it
+  // with here().page() inside the separator does not work: there `here()`
+  // always reports page 1, which shifted the rule on every page.)
+  // The title page is the only one whose footnote area extends into the
+  // margin column, so its rule is shifted; the page break that ends it
+  // switches back to the plain rule (see below). The separator comes from the
+  // styles in effect where a page starts, not from the footnote itself.
+  let plain-rule = line(length: 30%, stroke: 0.4pt)
   set footnote.entry(
-    separator: context {
-      let rule = line(length: 30%, stroke: 0.4pt)
-      if here().page() == 1 { move(dx: -title-extra, rule) } else { rule }
-    },
+    separator: move(dx: -title-extra, plain-rule),
     gap: fn-leading,
   )
   show footnote.entry: set par(leading: fn-leading)
@@ -767,6 +772,7 @@
   v(1.2em)
   pad(left: -title-extra, align(center, {
     set par(justify: false, first-line-indent: 0pt)
+
     let title-face = font-stack(edition, "heading")
     // Keep the title at the text block's width so it breaks as before.
     block(width: 100% - title-extra, text(size: 17.28pt, font: title-face, weight: heading-weight(edition), {
@@ -853,6 +859,7 @@
     },
   )
 
+  set footnote.entry(separator: plain-rule, gap: fn-leading)
   pagebreak()
 
   body
